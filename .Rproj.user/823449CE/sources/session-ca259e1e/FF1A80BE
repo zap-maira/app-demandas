@@ -1,0 +1,28 @@
+{
+    "id": "FF1A80BE",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1747800233612.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "id": "efa83252d140447c995d711039248694",
+        "name": "url",
+        "title": "url",
+        "language": "Python",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2466321603649696626,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1747800233612,
+    "read_only": false,
+    "read_only_alternatives": []
+}

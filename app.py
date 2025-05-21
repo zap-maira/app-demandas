@@ -1,27 +1,11 @@
 import streamlit as st
-import sqlite3
 from datetime import datetime
+from supabase import create_client, Client
 
-# Conexão com banco SQLite
-conn = sqlite3.connect('demandas.db', check_same_thread=False)
-cursor = conn.cursor()
-  
-# Cria tabela se não existir
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS demandas (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT,
-    telefone TEXT,
-    bairro TEXT,
-    localizacao TEXT,
-    eixo TEXT,
-    descricao TEXT,
-    data_envio TEXT
-)
-''')
-conn.commit()
+url = "https://hxnhfrzhfsaykuvicpbc.supabase.co"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bmhmcnpoZnNheWt1dmljcGJjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Nzc5MzM3MCwiZXhwIjoyMDYzMzY5MzcwfQ.Wh2vVRlsV8QcTueMKzlCFqDdDtz7ohQqODXXnYLfukg"
+supabase: Client = create_client(url, key)
 
-# Estado da sessão para controle de envio
 if "enviado" not in st.session_state:
     st.session_state.enviado = False
 
@@ -39,21 +23,30 @@ if not st.session_state.enviado:
 
     if st.button("Enviar demanda"):
         if nome.strip() and telefone.strip() and bairro.strip() and descricao.strip():
-            data_envio = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            cursor.execute('''
-                INSERT INTO demandas (nome, telefone, bairro, localizacao, eixo, descricao, data_envio)
-                VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                (nome, telefone, bairro, localizacao, eixo, descricao, data_envio))
-            conn.commit()
-            st.session_state.enviado = True
-            st.rerun()
+            data_envio = datetime.now().isoformat()
+            try:
+                res = supabase.table("demandas").insert({
+                    "nome": nome,
+                    "telefone": telefone,
+                    "bairro": bairro,
+                    "localizacao": localizacao,
+                    "eixo": eixo,
+                    "descricao": descricao,
+                    "data_envio": data_envio
+                }).execute()
+
+                if res.data:
+                    st.session_state.enviado = True
+                    st.rerun()
+                else:
+                    st.error("Erro ao enviar demanda: a resposta não retornou dados.")
+            except Exception as e:
+                st.error(f"Erro ao conectar com o banco: {e}")
         else:
             st.warning("Por favor, preencha todos os campos obrigatórios.")
-
 else:
     st.success("✅ Sua demanda foi registrada com sucesso!")
     if st.button("📨 Enviar nova demanda"):
         st.session_state.enviado = False
         st.rerun()
-
 
