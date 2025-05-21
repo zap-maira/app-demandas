@@ -1,0 +1,2 @@
+reticulate::py_module_available("streamlit")
+getwd()

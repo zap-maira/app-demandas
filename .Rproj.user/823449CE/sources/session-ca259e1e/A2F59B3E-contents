@@ -1,0 +1,40 @@
+
+import streamlit as st
+import pandas as pd
+from supabase import create_client, Client
+
+# Configurações da Supabase
+url = "https://hxnhfrzhfsaykuvicpbc.supabase.co"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4bmhmcnpoZnNheWt1dmljcGJjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0Nzc5MzM3MCwiZXhwIjoyMDYzMzY5MzcwfQ.Wh2vVRlsV8QcTueMKzlCFqDdDtz7ohQqODXXnYLfukg"
+
+supabase: Client = create_client(url, key)
+
+st.title("📋 Painel da Equipe do Vereador")
+
+@st.cache_data
+def carregar_demandas():
+    response = supabase.table("demandas").select("*").execute()
+    return pd.DataFrame(response.data)
+
+df = carregar_demandas()
+
+# Filtro por eixo
+if not df.empty:
+    eixos = df["eixo"].unique()
+    eixo_selecionado = st.selectbox("Filtrar por eixo", options=["Todos"] + list(eixos))
+
+    if eixo_selecionado != "Todos":
+        df = df[df["eixo"] == eixo_selecionado]
+
+    st.write("### Demandas encontradas:", df.shape[0])
+    st.dataframe(df, use_container_width=True)
+
+    csv = df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+         label="\U0001F4E5 Baixar CSV",
+        data=csv,
+        file_name="demandas_filtradas.csv",
+        mime="text/csv",
+    )
+else:
+    st.warning("Nenhuma demanda encontrada ainda.")
