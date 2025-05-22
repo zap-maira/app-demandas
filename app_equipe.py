@@ -6,7 +6,7 @@ import sqlite3
 # Função para carregar os dados
 @st.cache_data
 def carregar_demandas():
-    conn = sqlite3.connect("banco_demandas.db")
+    conn = sqlite3.connect("demandas.db")
     df = pd.read_sql_query("SELECT * FROM demandas", conn)
     conn.close()
     return df
